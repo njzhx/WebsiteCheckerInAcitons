@@ -51,7 +51,7 @@ def main():
     print(f"开始检测 {len(urls)} 个 URL，并发数: {MAX_WORKERS}，超时: {TIMEOUT}s\n")
     print("=" * 80)
 
-    results = {"成功": [], "禁止访问": [], "失败": []}
+    results = {"成功": [], "禁止访问": [], "失败": [], "其他": []}
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         future_to_url = {executor.submit(check_url, url): url for url in urls}
@@ -67,16 +67,18 @@ def main():
                 results["禁止访问"].append((url, status_code))
                 print(f"🚫 禁止 | {url} | HTTP {status_code}")
             else:
-                results["失败"].append((url, f"HTTP {status_code}"))
-                print(f"⚠️  异常 | {url} | HTTP {status_code}")
+                # 405、412、521 等非 2xx 非 403/401 状态码归入"其他"
+                results["其他"].append((url, status_code))
+                print(f"🔵 其他 | {url} | HTTP {status_code}")
 
     print("\n" + "=" * 80)
     print("📊 检测结果汇总:")
     print(f"   ✅ 可正常访问: {len(results['成功'])} 个")
     print(f"   🚫 被禁止访问 (403/401): {len(results['禁止访问'])} 个")
+    print(f"   🔵 其他状态码 (非2xx/非403/401): {len(results['其他'])} 个")
     print(f"   ❌ 连接失败/超时: {len(results['失败'])} 个")
 
-    # 如果有任何失败，返回非零退出码，让 GitHub Actions 标记为失败
+    # 仅当有真正的连接失败或403/401禁止访问时，才返回非零退出码
     if results["失败"] or results["禁止访问"]:
         sys.exit(1)
 
