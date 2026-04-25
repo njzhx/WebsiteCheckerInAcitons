@@ -17,7 +17,7 @@ HEADERS = {
     "Cache-Control": "max-age=0",
 }
 
-TIMEOUT = 15          # 连接超时（秒）
+TIMEOUT = 30          # 连接超时（秒）
 MAX_WORKERS = 10      # 并发线程数
 
 def load_urls(filepath):
