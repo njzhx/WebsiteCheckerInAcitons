@@ -1,0 +1,1 @@
+手动运行acitons，会利用check_urls.py来检测urls.txt中的url是否可以通过github的actions临时主机进行访问。主要测试github actions主机到目标url的连通性。
